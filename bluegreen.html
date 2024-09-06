@@ -17,15 +17,17 @@
             width: 100vw;
             height: 100vh;
         }
+
         body {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content);
+            grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content) minmax(0px, min-content);
             grid-template-areas:
                 "range       range       range"
                 "blue-green  blue-green  blue-green"
                 "range-value range-value range-value"
                 "canvas      canvas      canvas"
+                "tries       tries       tries"
                 "is-green    restart     is-blue"
             ;
             border: 10px solid white;
@@ -36,23 +38,27 @@
             background: rgb(255, 255, 255);
             background: linear-gradient(90deg, rgba(0, 255, 0, 1) 0%, rgba(0, 0, 255, 1) 100%);
         }
+
         .line {
             grid-area: blue-green;
             margin-left: 50%;
             width: 1px;
             background-color: black;
         }
+
         .btn {
             padding: 5px;
             text-align: center;
             font-weight: bold;
             font-size: 2rem;
         }
+
         .range {
             grid-area: range;
             padding: 10px 0;
             outline-color: transparent;
         }
+
         .range-value {
             grid-area: range-value;
             padding: 10px 0;
@@ -71,6 +77,14 @@
 
         }
 
+        .tries {
+            grid-area: tries;
+            padding: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
         .is-green {
             grid-area: is-green;
         }
@@ -83,40 +97,61 @@
     </style>
 </head>
 <body>
+    <input tabindex="0" class="range" type="range" min="0" max="100" step="1" value="50"/>
     <div class="blue-green"></div>
     <div class="line"></div>
     <div class="range-value">50%</div>
     <div class="canvas">Is this Green or Blue?</div>
-    <input tabindex="0" class="range" type="range" min="0" max="100" step="1" value="50"/>
+    <div class="tries">Tries left: 0</div>
     <div class="btn is-green">Is Green</div>
-    <div class="btn restart">Restart</div>
+    <div class="btn restart">(Re)start</div>
     <div class="btn is-blue">Is Blue</div>
     <script>
         const range = document.querySelector(".range");
         const rangeValue = document.querySelector(".range-value");
-        const line = document.querySelector(".line");
         const blueGreen = document.querySelector(".blue-green");
-
+        const line = document.querySelector(".line");
         const canvas = document.querySelector(".canvas");
+        const tries = document.querySelector(".tries");
+
+        const isGreen = document.querySelector(".is-green");
+        const isBlue = document.querySelector(".is-blue");
 
         const hiddenCanvas = document.createElement('canvas');
         const ctx = hiddenCanvas.getContext('2d');
 
+        let triesLeft = 5;
+
         const adjust = () => {
             line.style.marginLeft = `${range.value}%`;
             rangeValue.innerText = `${range.value}%`;
+            tries.innerText = `Tries left: ${triesLeft}`;
             canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen,
                 hiddenCanvas,
                 Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
                 0);
         }
         adjust();
+
         range.addEventListener("input", () => {
             adjust();
         });
         const restart = document.querySelector(".restart");
         restart.addEventListener("click", () => {
-            range.value = 50;
+            triesLeft = 5;
+            range.value = Math.floor(Math.random() * (100  + 1) + 0);
+            adjust();
+        });
+
+        isGreen.addEventListener("click", () => {
+            triesLeft = Math.max(0, --triesLeft);
+            range.value = Math.floor(Math.random() * (100  + 1) + 0);
+            adjust();
+        });
+
+        isBlue.addEventListener("click", () => {
+            triesLeft = Math.max(0, --triesLeft);
+            range.value = Math.floor(Math.random() * (100  + 1) + 0);
             adjust();
         });
 
