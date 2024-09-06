@@ -121,6 +121,7 @@
         const ctx = hiddenCanvas.getContext('2d');
 
         let triesLeft = 5;
+        range.value = Math.floor(Math.random() * (100  + 1) + 0);
 
         const adjust = () => {
             line.style.marginLeft = `${range.value}%`;
