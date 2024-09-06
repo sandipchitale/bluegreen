@@ -105,7 +105,7 @@
         const adjust = () => {
             line.style.marginLeft = `${range.value}%`;
             rangeValue.innerText = `${range.value}%`;
-            canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen, hiddenCanvas, Math.round(blueGreen.offsetWidth * (range.value/100)), 1);
+            canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen, hiddenCanvas, Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)), 1);
         }
         adjust();
         range.addEventListener("input", () => {
@@ -119,8 +119,8 @@
 
         function getColorFromLinearGradient(element, canvas, x, y) {
             // Match the canvas size to the element
-            canvas.width = element.offsetWidth;
-            canvas.height = element.offsetHeight;
+            canvas.width = element.offsetWidth + 1;
+            canvas.height = 2;
 
             // Get the computed background style
             const computedStyle = getComputedStyle(element);
