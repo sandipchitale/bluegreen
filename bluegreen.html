@@ -102,7 +102,7 @@
     <div class="line"></div>
     <div class="range-value">50%</div>
     <div class="canvas">Is this Green or Blue?</div>
-    <div class="tries">Tries left: 0</div>
+    <div class="tries">Tries: 0</div>
     <div class="btn is-green">Is Green</div>
     <div class="btn restart">(Re)start</div>
     <div class="btn is-blue">Is Blue</div>
@@ -120,13 +120,13 @@
         const hiddenCanvas = document.createElement('canvas');
         const ctx = hiddenCanvas.getContext('2d');
 
-        let triesLeft = 5;
-        range.value = Math.floor(Math.random() * (100  + 1) + 0);
+        let triesAttempted = 0;
+        range.value = Math.floor(Math.random() * (20  + 1) + 40);
 
         const adjust = () => {
             line.style.marginLeft = `${range.value}%`;
             rangeValue.innerText = `${range.value}%`;
-            tries.innerText = `Tries left: ${triesLeft}`;
+            tries.innerText = `Tries: ${triesAttempted}`;
             canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen,
                 hiddenCanvas,
                 Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
@@ -139,20 +139,20 @@
         });
         const restart = document.querySelector(".restart");
         restart.addEventListener("click", () => {
-            triesLeft = 5;
-            range.value = Math.floor(Math.random() * (100  + 1) + 0);
+            triesAttempted = 0;
+            range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
 
         isGreen.addEventListener("click", () => {
-            triesLeft = Math.max(0, --triesLeft);
-            range.value = Math.floor(Math.random() * (100  + 1) + 0);
+            triesAttempted++;
+            range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
 
         isBlue.addEventListener("click", () => {
-            triesLeft = Math.max(0, --triesLeft);
-            range.value = Math.floor(Math.random() * (100  + 1) + 0);
+            triesAttempted++;
+            range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
 
@@ -187,9 +187,7 @@
             const pixelData = ctx.getImageData(x, y, 1, 1).data;
 
             // Convert pixel data to RGB color string
-            const color = `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
-
-            return color;
+            return `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
         }
     </script>
 </body>
