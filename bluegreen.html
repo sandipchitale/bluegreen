@@ -20,7 +20,7 @@
 
         body {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content) minmax(0px, min-content) minmax(0px, min-content);
             grid-template-areas:
                 "range       range       range"
@@ -28,7 +28,7 @@
                 "range-value range-value range-value"
                 "canvas      canvas      canvas"
                 "tries       tries       tries"
-                "greens      .           blues"
+                "greens      .      blues"
                 "is-green    restart     is-blue"
             ;
             border: 10px solid white;
@@ -88,9 +88,11 @@
 
         .greens {
             grid-area: greens;
-            padding: 10px 0;
             display: flex;
             flex-direction: row;
+            justify-content: end;
+            height: 44px;
+            margin-right: 20px;
         }
 
         .green-chip {
@@ -102,10 +104,10 @@
 
         .blues {
             grid-area: blues;
-            padding: 10px 0;
             display: flex;
             flex-direction: row;
-            justify-content: end;
+            height: 44px;
+            margin-left: 20px;
         }
 
         .blue-chip {
@@ -117,12 +119,14 @@
 
         .is-green {
             grid-area: is-green;
+            text-align: end;
         }
         .restart {
             grid-area: restart;
         }
         .is-blue {
             grid-area: is-blue;
+            text-align: start;
         }
     </style>
 </head>
@@ -135,9 +139,9 @@
     <div class="tries">Tries: 0</div>
     <div class="greens" title="History of greens"><div class="green-chip">&nbsp;</div></div>
     <div class="blues" title="History of blues"><div class="blue-chip"></div></div>
-    <div class="btn is-green">Is Green</div>
-    <div class="btn restart">(Re)start</div>
-    <div class="btn is-blue">Is Blue</div>
+    <div class="btn is-green">Is Green ⟽</div>
+    <div class="btn restart" title="(Re)start">⟲</div>
+    <div class="btn is-blue">⟾ Is Blue</div>
     <script>
         const range = document.querySelector(".range");
         const rangeValue = document.querySelector(".range-value");
@@ -178,14 +182,14 @@
                 const greenChip = document.createElement('div');
                 greenChip.className = 'green-chip';
                 greenChip.style.backgroundColor = greenTries[i];
-                greenChip.title = `#${i + 1} ${greenTries[i]}`
+                greenChip.title = `#${greenTries.length - i} ${greenTries[i]}`
                 greens.appendChild(greenChip);
             }
             for(let i = 0; i < blueTries.length; i++) {
                 const blueChip = document.createElement('div');
                 blueChip.className = 'blue-chip';
                 blueChip.style.backgroundColor = blueTries[i];
-                blueChip.title = `#${blueTries.length - i} ${blueTries[i]}`
+                blueChip.title = `#${i + 1} ${blueTries[i]}`
                 blues.appendChild(blueChip);
             }
         }
@@ -205,7 +209,7 @@
 
         isGreen.addEventListener("click", () => {
             triesAttempted++;
-            greenTries.push(getColorFromLinearGradient(blueGreen,
+            greenTries.unshift(getColorFromLinearGradient(blueGreen,
                 hiddenCanvas,
                 Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
                 0));
@@ -216,7 +220,7 @@
 
         isBlue.addEventListener("click", () => {
             triesAttempted++;
-            blueTries.unshift(getColorFromLinearGradient(blueGreen,
+            blueTries.push(getColorFromLinearGradient(blueGreen,
                 hiddenCanvas,
                 Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
                 0));
