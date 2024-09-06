@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Is My Blue Your Green</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content);
+            grid-template-areas:
+                "range       range       range"
+                "blue-green  blue-green  blue-green"
+                "range-value range-value range-value"
+                "canvas      canvas      canvas"
+                "is-green    restart     is-blue"
+            ;
+            border: 10px solid white;
+        }
+
+        .blue-green {
+            grid-area: blue-green;
+            background: rgb(255, 255, 255);
+            background: linear-gradient(90deg, rgba(0, 255, 0, 1) 0%, rgba(0, 0, 255, 1) 100%);
+        }
+        .line {
+            grid-area: blue-green;
+            margin-left: 50%;
+            width: 1px;
+            background-color: black;
+        }
+        .btn {
+            padding: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+        .range {
+            grid-area: range;
+            padding: 10px 0;
+            outline-color: transparent;
+        }
+        .range-value {
+            grid-area: range-value;
+            padding: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
+        .canvas {
+            grid-area: canvas;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            padding-top: 200px;
+
+        }
+
+        .is-green {
+            grid-area: is-green;
+        }
+        .restart {
+            grid-area: restart;
+        }
+        .is-blue {
+            grid-area: is-blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="blue-green"></div>
+    <div class="line"></div>
+    <div class="range-value">50%</div>
+    <div class="canvas">Is this Green or Blue?</div>
+    <input tabindex="0" class="range" type="range" min="0" max="100" step="1" value="50"/>
+    <div class="btn is-green">Is Green</div>
+    <div class="btn restart">Restart</div>
+    <div class="btn is-blue">Is Blue</div>
+    <script>
+        const range = document.querySelector(".range");
+        const rangeValue = document.querySelector(".range-value");
+        const line = document.querySelector(".line");
+        const blueGreen = document.querySelector(".blue-green");
+
+        const canvas = document.querySelector(".canvas");
+
+        const hiddenCanvas = document.createElement('canvas');
+        const ctx = hiddenCanvas.getContext('2d');
+
+        const adjust = () => {
+            line.style.marginLeft = `${range.value}%`;
+            rangeValue.innerText = `${range.value}%`;
+            canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen, hiddenCanvas, Math.round(blueGreen.offsetWidth * (range.value/100)), 1);
+        }
+        adjust();
+        range.addEventListener("input", () => {
+            adjust();
+        });
+        const restart = document.querySelector(".restart");
+        restart.addEventListener("click", () => {
+            range.value = 50;
+            adjust();
+        });
+
+        function getColorFromLinearGradient(element, canvas, x, y) {
+            // Match the canvas size to the element
+            canvas.width = element.offsetWidth;
+            canvas.height = element.offsetHeight;
+
+            // Get the computed background style
+            const computedStyle = getComputedStyle(element);
+            const backgroundImage = computedStyle.backgroundImage;
+
+            // Extract gradient information (assuming a simple linear gradient)
+            const gradientMatch = backgroundImage.match(/linear-gradient\((.*)\)/);
+            if (!gradientMatch) {
+                console.error("Not a linear gradient");
+                return null;
+            }
+
+            const gradientArgs = gradientMatch[1];
+
+            // Create a linear gradient on the canvas
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0); // Adjust direction if needed
+            gradient.addColorStop(0.0, '#00ff00');
+            gradient.addColorStop(1.0, '#0000ff');
+
+            // Fill the canvas with the gradient
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Get the pixel data at the specified coordinates
+            const pixelData = ctx.getImageData(x, y, 1, 1).data;
+
+            // Convert pixel data to RGB color string
+            const color = `rgb(${pixelData[0]}, ${pixelData[1]}, ${pixelData[2]})`;
+
+            return color;
+        }
+    </script>
+</body>
+</html>
