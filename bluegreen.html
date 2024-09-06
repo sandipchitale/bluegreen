@@ -21,13 +21,14 @@
         body {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content) minmax(0px, min-content);
+            grid-template-rows: minmax(0px, min-content) minmax(0px, 100px) minmax(0px, min-content) 1fr  minmax(0px, min-content) minmax(0px, min-content) minmax(0px, min-content);
             grid-template-areas:
                 "range       range       range"
                 "blue-green  blue-green  blue-green"
                 "range-value range-value range-value"
                 "canvas      canvas      canvas"
                 "tries       tries       tries"
+                "greens      .           blues"
                 "is-green    restart     is-blue"
             ;
             border: 10px solid white;
@@ -85,6 +86,35 @@
             font-size: 2rem;
         }
 
+        .greens {
+            grid-area: greens;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .green-chip {
+            background-color: #00ff00;
+            width: 40px;
+            aspect-ratio: 1/1;
+            margin: 2px;
+        }
+
+        .blues {
+            grid-area: blues;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+        }
+
+        .blue-chip {
+            background-color: #0000ff;
+            width: 40px;
+            aspect-ratio: 1/1;
+            margin: 2px;
+        }
+
         .is-green {
             grid-area: is-green;
         }
@@ -103,6 +133,8 @@
     <div class="range-value">50%</div>
     <div class="canvas">Is this Green or Blue?</div>
     <div class="tries">Tries: 0</div>
+    <div class="greens" title="History of greens"><div class="green-chip">&nbsp;</div></div>
+    <div class="blues" title="History of blues"><div class="blue-chip"></div></div>
     <div class="btn is-green">Is Green</div>
     <div class="btn restart">(Re)start</div>
     <div class="btn is-blue">Is Blue</div>
@@ -114,44 +146,81 @@
         const canvas = document.querySelector(".canvas");
         const tries = document.querySelector(".tries");
 
+        const greens = document.querySelector(".greens");
+        const blues = document.querySelector(".blues");
+
         const isGreen = document.querySelector(".is-green");
+        const restart = document.querySelector(".restart");
         const isBlue = document.querySelector(".is-blue");
 
         const hiddenCanvas = document.createElement('canvas');
         const ctx = hiddenCanvas.getContext('2d');
 
         let triesAttempted = 0;
+        let greenTries = [];
+        let blueTries = [];
         range.value = Math.floor(Math.random() * (20  + 1) + 40);
 
         const adjust = () => {
             line.style.marginLeft = `${range.value}%`;
             rangeValue.innerText = `${range.value}%`;
             tries.innerText = `Tries: ${triesAttempted}`;
-            canvas.style.backgroundColor = getColorFromLinearGradient(blueGreen,
+            const backgroundColor = getColorFromLinearGradient(blueGreen,
                 hiddenCanvas,
                 Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
                 0);
+            canvas.style.backgroundColor = backgroundColor;
+            canvas.title = backgroundColor;
+
+            greens.innerHTML = "&nbsp;";
+            blues.innerHTML = "&nbsp;";
+            for(let i = 0; i < greenTries.length; i++) {
+                const greenChip = document.createElement('div');
+                greenChip.className = 'green-chip';
+                greenChip.style.backgroundColor = greenTries[i];
+                greenChip.title = `#${i + 1} ${greenTries[i]}`
+                greens.appendChild(greenChip);
+            }
+            for(let i = 0; i < blueTries.length; i++) {
+                const blueChip = document.createElement('div');
+                blueChip.className = 'blue-chip';
+                blueChip.style.backgroundColor = blueTries[i];
+                blueChip.title = `#${blueTries.length - i} ${blueTries[i]}`
+                blues.appendChild(blueChip);
+            }
         }
         adjust();
 
         range.addEventListener("input", () => {
             adjust();
         });
-        const restart = document.querySelector(".restart");
+
         restart.addEventListener("click", () => {
             triesAttempted = 0;
+            greenTries = [];
+            blueTries = [];
             range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
 
         isGreen.addEventListener("click", () => {
             triesAttempted++;
+            greenTries.push(getColorFromLinearGradient(blueGreen,
+                hiddenCanvas,
+                Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
+                0));
+            // Next
             range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
 
         isBlue.addEventListener("click", () => {
             triesAttempted++;
+            blueTries.unshift(getColorFromLinearGradient(blueGreen,
+                hiddenCanvas,
+                Math.min(blueGreen.offsetWidth, Math.round((blueGreen.offsetWidth * range.value)/100)),
+                0));
+            // Next
             range.value = Math.floor(Math.random() * (20  + 1) + 40);
             adjust();
         });
